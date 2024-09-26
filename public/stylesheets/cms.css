@@ -1,9 +1,11 @@
-body {
-  padding: 1em;
-  font-family: sans-serif;
-}
-
-.message {
-  padding: 10px;
-  background: #FFFF99;
+.text-input {
+    width: 100%; /* Full width of the parent container */
+    max-width: 600px; /* Maximum width */
+    height: 40px; /* Height of the input box */
+    padding: 10px; /* Padding inside the input */
+    font-size: 16px; /* Font size for better readability */
+    border: 1px solid #ccc; /* Border color */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: slight shadow for depth */
+    margin-top: 10px; /* Space above the input */
 }

@@ -1,0 +1,8 @@
+<!--/views/edit.erb-->
+<h2>Edit content of <%= params[:filename] %></h2>
+<textarea> <%= @read_file%> </textarea>
+
+<form action="/" method="post">
+    <input type="submit" value="Save Changes">
+    <a href="/"></a>
+</form>

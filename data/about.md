@@ -1,3 +1,3 @@
-# Welcome to My Blog
+# Ruby is...
 
 This is a paragraph introducing the blog. Visit [my website](https://example.com) for more information!

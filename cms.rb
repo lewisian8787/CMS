@@ -44,15 +44,11 @@ get "/:filename" do
 
     file_path = root + "/data/" + params[:filename]
     # `file_path` is just a string of the file path.
-    # params is a hash given to us through sinatra.
+    # params is a hash given to us through sinatra as the url is entered.
     # when we type a URL with `:filename` being the name of a file,
     # `:filename` becomes the key, and the file in the URL is the value.
     # This allows us to dynamically handle the route without creating
     # a route for every file
-    
-    
-    # This sets the content type header of the request 
-    # to just plain text.
     
     if File.extname(file_path) == ".md"
       render_markdown(File.read(file_path))
@@ -66,5 +62,18 @@ get "/:filename" do
     session[:message] = "#{params[:filename]} does not exist"
     redirect "/"
   end
+end
+
+get "/:filename/edit" do
+  file_path = root + "/data/" + params[:filename]
+  @read_file = File.read(file_path)
   
+  erb :edit
+end
+
+post "/" do
+  # CURRENTLY HERE
+  
+  session[:message] = "The file was changed successfully!"
+  redirect "/"
 end
