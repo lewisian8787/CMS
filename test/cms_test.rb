@@ -29,16 +29,15 @@ class CMSTest < Minitest::Test
     end
   end
 
+  # test/cms_test.rb
   def test_index
-    create_document "about.md"
-    create_document "changes.txt"
-
     get "/"
 
     assert_equal 200, last_response.status
     assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
     assert_includes last_response.body, "about.md"
     assert_includes last_response.body, "changes.txt"
+    assert_includes last_response.body, "history.txt"
   end
 
   def test_viewing_text_document

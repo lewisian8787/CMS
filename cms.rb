@@ -1,70 +1,70 @@
 require "sinatra"
 require "sinatra/reloader"
-require "tilt/erubis"
 require "redcarpet"
+
 
 configure do
   enable :sessions
   set :session_secret, SecureRandom.hex(32)
 end
 
-def data_path
-  if ENV["RACK_ENV"] == "test"
-    File.expand_path("../test/data", __FILE__)
-  else
-    File.expand_path("../data", __FILE__)
-  end
+def render_markdown(markdown_string)
+    markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+    markdown.render(markdown_string)
 end
 
-def render_markdown(text)
-  markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
-  markdown.render(text)
-end
+root = File.expand_path("..", __FILE__)
+# Returns a string of the directory
+# in reference to the file we are in.
 
-def load_file_content(path)
-  content = File.read(path)
-  case File.extname(path)
-  when ".txt"
-    headers["Content-Type"] = "text/plain"
-    content
-  when ".md"
-    erb render_markdown(content)
-  end
-end
-
+# Displays the index of files
 get "/" do
-  pattern = File.join(data_path, "*")
-  @files = Dir.glob(pattern).map do |path|
+  @files = Dir.glob(root + "/data/*").map do |path|
+    # Dir.glob returns an array of all paths directing to the files
+    # in the given directory,
+    # in this case the directory of our current file,
+    # and then goes into the `data` directory as well
     File.basename(path)
+    # Returns just the file name of a given path.
+    # `map` is putting the names of the files into another array
   end
+  
   erb :index
 end
 
+#  Displays the selected file
 get "/:filename" do
-  file_path = File.join(data_path, params[:filename])
+  # the colon is used in sanatra routes to indicate that value
+  # needs to be passed to the params hash
+  @files = Dir.glob(root + "/data/*").map do |path|
+    File.basename(path)
+  end
+  
+  if @files.include?(params[:filename])
 
-  if File.exist?(file_path)
-    load_file_content(file_path)
+    file_path = root + "/data/" + params[:filename]
+    # `file_path` is just a string of the file path.
+    # params is a hash given to us through sinatra.
+    # when we type a URL with `:filename` being the name of a file,
+    # `:filename` becomes the key, and the file in the URL is the value.
+    # This allows us to dynamically handle the route without creating
+    # a route for every file
+    
+    
+    # This sets the content type header of the request 
+    # to just plain text.
+    
+    if File.extname(file_path) == ".md"
+      render_markdown(File.read(file_path))
+    else
+      headers["Content-Type"] = "text/plain"
+      File.read(file_path)
+      # if the file requested exists, it is read using
+      # the `File.read` method with the file path passed in.
+    end
   else
-    session[:message] = "#{params[:filename]} does not exist."
+    session[:message] = "#{params[:filename]} does not exist"
     redirect "/"
   end
-end
-
-get "/:filename/edit" do
-  file_path = File.join(data_path, params[:filename])
-
-  @filename = params[:filename]
-  @content = File.read(file_path)
-
-  erb :edit
-end
-
-post "/:filename" do
-  file_path = File.join(data_path, params[:filename])
-
-  File.write(file_path, params[:content])
-
-  session[:message] = "#{params[:filename]} has been updated."
-  redirect "/"
+  
 end

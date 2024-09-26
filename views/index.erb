@@ -1,15 +1,18 @@
 <!-- views/index.erb -->
 
+<ul>
+<!--creates a group for lists to sit in-->
+<!--- Unordered list (not numbered)-->
 <% if session[:message] %>
-  <p><%= session.delete(:message) %></p>
+  <p> <%= session.delete(:message) %> </p>
 <% end %>
 
-<!-- views/index.erb -->
-<ul>
   <% @files.each do |file| %>
-    <li>
-      <a href="/<%= file %>"><%= file %></a>
-      <a href="/<%= file %>/edit">edit</a>
-    </li>
+  <!--Iterates through the array of filenames
+      and creates a list of links to the files-->
+    <li><a href="/<%= file %>"><%= file %></a></li>
+    <!-- this href is stored in a list item -->
+    <!-- href references a URL, and then uses some
+    text to store that url in a link.-->
   <% end %>
 </ul>
