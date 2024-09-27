@@ -2,70 +2,74 @@ require "sinatra"
 require "sinatra/reloader"
 require "redcarpet"
 
-
+#configuring sessions
 configure do
   enable :sessions
   set :session_secret, SecureRandom.hex(32)
 end
 
+#render markdown method
 def render_markdown(markdown_string)
     markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
     markdown.render(markdown_string)
 end
 
-root = File.expand_path("..", __FILE__)
-# Returns a string of the directory
-# in reference to the file we are in.
+# new method to establish the correct path based on the current environment (determine if its in test or not)
+def data_path
+  if ENV["RACK_ENV"] == "test"
+    File.expand_path("../test/data", __FILE__)
+    # "/home/ec2-user/environment/CMS/test/data"
+  else
+    File.expand_path("../data", __FILE__)
+    # "/home/ec2-user/environment/CMS/data"
+  end
+end
+
+#method to load the content of the file at path requested
+def load_file_content(path)
+  content = File.read(path)
+  case File.extname(path)
+  when ".txt"
+    headers["Content-Type"] = "text/plain"
+    content
+  when ".md"
+    erb render_markdown(content)
+  end
+end
 
 # Displays the index of files
 get "/" do
-  @files = Dir.glob(root + "/data/*").map do |path|
-    # Dir.glob returns an array of all paths directing to the files
-    # in the given directory,
-    # in this case the directory of our current file,
-    # and then goes into the `data` directory as well
+  pattern = File.join(data_path, "*")
+  # "/home/ec2-user/environment/CMS/data/*"
+  @files = Dir.glob(pattern).map do |path|
+    # Dir.glob returns an array of all paths in the directory (about/history/changes)
     File.basename(path)
-    # Returns just the file name of a given path.
-    # `map` is putting the names of the files into another array
+    # Returns just the file name of a given path (about.md/changes.txt/history.txt) destructively creating a new array in @files
   end
+  # @files = [about.md, changes.txt, history.txt]
   
   erb :index
 end
 
-#  Displays the selected file
-get "/:filename" do
-  # the colon is used in sanatra routes to indicate that value
-  # needs to be passed to the params hash
-  @files = Dir.glob(root + "/data/*").map do |path|
-    File.basename(path)
-  end
-  
-  if @files.include?(params[:filename])
+get "/new" do 
+  erb :new, layout: :layout
+end
 
-    file_path = root + "/data/" + params[:filename]
-    # `file_path` is just a string of the file path.
-    # params is a hash given to us through sinatra as the url is entered.
-    # when we type a URL with `:filename` being the name of a file,
-    # `:filename` becomes the key, and the file in the URL is the value.
-    # This allows us to dynamically handle the route without creating
-    # a route for every file
-    
-    if File.extname(file_path) == ".md"
-      render_markdown(File.read(file_path))
-    else
-      headers["Content-Type"] = "text/plain"
-      File.read(file_path)
-      # if the file requested exists, it is read using
-      # the `File.read` method with the file path passed in.
-    end
+get "/:filename" do
+  #return a string to the file the page is currently rendering
+  file_path = File.join(data_path, params[:filename])
+  
+  #simlpified way of searching for the complete file path above (includes path and basename)
+  if File.exist?(file_path)
+    load_file_content(file_path)
   else
-    session[:message] = "#{params[:filename]} does not exist"
+    session[:message] = "#{params[:filename]} does not exist."
     redirect "/"
   end
 end
 
 get "/:filename/edit" do
-  file_path = root + "/data/" + params[:filename]
+  file_path = File.join(data_path, params[:filename])
   
   @filename = params[:filename]
   @content = File.read(file_path)
@@ -73,12 +77,53 @@ get "/:filename/edit" do
   erb :edit
 end
 
+# post "/create" do
+  
+#   filename = params[:filename].to_s
+  
+#   if filename.size == 0
+#     session[:message] = "You must enter a name"
+#     status 402
+#     redirect "/new"
+#   else
+#     file_path = File.join(data_path, filename)
+    
+#     File.write(file_path, "")
+    
+#     session[:message] = "#{params[:filename]} has been created"
+#     redirect "/"
+#   end
+# end
+
+# cms.rb
+get "/new" do
+  erb :new
+end
+
+post "/create" do
+  filename = params[:filename].to_s
+
+  if filename.size == 0
+    session[:message] = "A name is required."
+    status 422
+    erb :new
+  else
+    file_path = File.join(data_path, filename)
+
+    File.write(file_path, "")
+    session[:message] = "#{params[:filename]} has been created."
+
+    redirect "/"
+  end
+end
+
 post "/:filename" do
-  file_path = root + "/data/" + params[:filename]
+  file_path = File.join(data_path, params[:filename])
   
   File.write(file_path, params[:content])
   
 
-  session[:message] = "The file was changed successfully!"
+  session[:message] = "#{params[:filename]} has been updated"
   redirect "/"
 end
+

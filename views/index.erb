@@ -2,10 +2,7 @@
 
 <ul>
 <!--creates a group for lists to sit in-->
-<!--- Unordered list (not numbered)-->
-<% if session[:message] %>
-  <p> <%= session.delete(:message) %> </p>
-<% end %>
+<!--- Unordered list (not numbered)--
 
   <% @files.each do |file| %>
   <!--Iterates through the array of filenames
@@ -18,4 +15,8 @@
     <!-- href references a URL, and then uses some
     text to store that url in a link.-->
   <% end %>
+  
+
 </ul>
+
+<p><a href="/new"> New Document </a></p>
