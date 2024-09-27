@@ -1,8 +1,20 @@
-<!--/views/edit.erb-->
-<h2>Edit content of <%= params[:filename] %></h2>
-<textarea> <%= @read_file%> </textarea>
+/views/edit.erb
+<h3>Edit content of <%= params[:filename] %></h3>
 
-<form action="/" method="post">
-    <input type="submit" value="Save Changes">
-    <a href="/"></a>
+
+<form action="/<%= @filename %>" method="post">
+    <textarea name="content" rows="20" cols="100"> <%=@content%> </textarea>
+    <button type="submit">Save My Changes</button>
 </form>
+
+
+<!-- views/edit.erb -->
+<form method="post" action="/<%= @filename %>">
+  <label for="content">Edit content of <%= @filename %>:</label>
+  <div>
+    <textarea name="content" id="content" rows="20" cols="100"><%= @content %></textarea>
+  </div>
+  <button type="submit">Save Changes</button>
+</form>
+
+##YOU ARE HERE TRYING TO FIGURE OUT WHY ONE WONT WORK
