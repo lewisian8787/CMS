@@ -10,6 +10,10 @@
     <li>
       <a href="/<%= file %>"><%= file %></a>
       <a href="/<%= file %>/edit"> Edit</a>
+      
+      <form action="/<%= file %>/delete_file" method="post">
+        <button type="submit">Delete</button>
+      </form>>
     </li> 
     <!-- this href is stored in a list item -->
     <!-- href references a URL, and then uses some
@@ -19,4 +23,13 @@
 
 </ul>
 
-<p><a href="/new"> New Document </a></p>
+<p><a href="/new_document"> New Document </a></p>
+
+<% if session[:signin_status] == true %>
+  <form action="/signout" method="post">
+    <p>You are signed in as <%= session[:username] %></p>
+    <button type="submit">Sign Out</button>
+  </form>
+<% else %>
+    <p><a href="/signin">Sign In</a></p>
+<% end %>

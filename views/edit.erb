@@ -2,7 +2,7 @@
 <h3>Edit content of <%= @filename %></h3>
 
 
-<form action="/<%= @filename %>" method="post">
+<form action="/<%= @filename %>/update" method="post">
     <textarea name="content" rows="20" cols="100"> <%=@content%> </textarea>
     <button type="submit">Save My Changes</button>
 </form>
